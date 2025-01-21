@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Teams in Your Division{% endblock %}
+
+{% block content %}
+<h2>Teams in Division {{ division.name }}</h2>
+
+<ul>
+    {% for team in teams %}
+    <li>
+        {{ team.name }}
+        <a href="{% url 'view_matchups' team.id %}">View Matchups</a>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

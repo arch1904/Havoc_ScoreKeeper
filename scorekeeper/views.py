@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from .models import Division, Player, Team, Match, GameMatchup, SKILL_GAMES_NEEDED
 from .forms import CustomLoginForm, GameMatchupForm
+from django.db import models
 
 def load_schedule_from_csv(csv_path='schedule.csv'):
     # This is just a demonstration. In production, you might run a custom mgmt command
@@ -42,57 +43,55 @@ def load_schedule_from_csv(csv_path='schedule.csv'):
 
 def login_view(request):
     if request.method == 'POST':
-        form = CustomLoginForm(request.POST)
-        if form.is_valid():
-            division_id = form.cleaned_data['division_id']
-            player_id = form.cleaned_data['player_id']
+        division_id = request.POST.get('division_id')
+        player_id = request.POST.get('player_id')
 
-            # Attempt to find the Player in that Division
-            try:
-                # We'll do a quick filter
-                division = Division.objects.get(pk=division_id)
-                player = Player.objects.get(player_number=player_id, team__division=division)
-            except (Division.DoesNotExist, Player.DoesNotExist):
-                return render(request, 'login.html', {
-                    'form': form,
-                    'error': "Invalid division/player combination."
-                })
+        try:
+            # Validate the player and division
+            division = Division.objects.get(pk=division_id)
+            player = Player.objects.get(player_number=player_id, team__division=division)
+        except Division.DoesNotExist:
+            return render(request, 'login.html', {'error': 'Invalid Division ID'})
+        except Player.DoesNotExist:
+            return render(request, 'login.html', {'error': 'Invalid Player ID'})
 
-            # Example: find a match for the player's team that is "today"
-            # In a real scenario, you might show a list of all scheduled matches or 
-            # the nearest upcoming match. For demonstration, assume "today's match."
-            today = datetime.date.today()
-            # e.g. get home or away match for player's team on today's date
-            match = Match.objects.filter(
-                division=division,
-                date=today
-            ).filter(
-                home_team=player.team
-            ).first() or Match.objects.filter(
-                division=division,
-                date=today
-            ).filter(
-                away_team=player.team
-            ).first()
+        # If successful, log the user in (you can implement a custom user system here)
+        request.session['player_id'] = player.id
+        request.session['division_id'] = division.id
 
-            if not match:
-                # If no match found, return an error or handle gracefully
-                return render(request, 'scorekeeper/templates/login.html', {
-                    'form': form,
-                    'error': "No scheduled match found for your team today!"
-                })
+        return redirect('view_teams')  # Redirect to the "view all teams" page
 
-            # Store something in session for demonstration
-            request.session['player_id'] = player.id
-            request.session['division_id'] = division.id
-            request.session['match_id'] = match.id
+    return render(request, 'login.html')
 
-            # Redirect to the scoresheet page
-            return redirect(reverse('scoresheet'))
-    else:
-        form = CustomLoginForm()
+def view_teams(request):
+    division_id = request.session.get('division_id')
+    if not division_id:
+        return redirect('login')  # If not logged in, redirect to login
 
-    return render(request, 'login.html', {'form': form})
+    division = Division.objects.get(pk=division_id)
+    teams = Team.objects.filter(division=division)
+
+    return render(request, 'view_teams.html', {'division': division, 'teams': teams})
+
+def view_matchups(request, team_id):
+    team = get_object_or_404(Team, pk=team_id)
+    division_id = request.session.get('division_id')
+    if team.division_id != division_id:
+        return redirect('view_teams')  # Prevent access to matchups outside logged-in division
+
+    # Fetch matchups where this team is either the home or away team
+    matchups = Match.objects.filter(division_id=division_id).filter(
+        models.Q(home_team=team) | models.Q(away_team=team)
+    )
+
+    # Add opponent info to matchups
+    for matchup in matchups:
+        if matchup.home_team == team:
+            matchup.opponent = matchup.away_team
+        else:
+            matchup.opponent = matchup.home_team
+
+    return render(request, 'view_matchups.html', {'team': team, 'matchups': matchups})
 
 def scoresheet_view(request):
     match_id = request.session.get('match_id')

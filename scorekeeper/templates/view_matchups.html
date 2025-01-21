@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Matchups for {{ team.name }}{% endblock %}
+
+{% block content %}
+<h2>Matchups for {{ team.name }}</h2>
+
+<ul>
+    {% for matchup in matchups %}
+    <li>
+        <strong>Date:</strong> {{ matchup.date }}<br>
+        <strong>Opponent:</strong> {{ matchup.opponent.name }}
+    </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'view_teams' %}">Back to Teams</a>
+{% endblock %}

@@ -19,6 +19,13 @@ class Team(models.Model):
 
     def __str__(self):
         return f"{self.name} (Division: {self.division.name})"
+
+    @property
+    def players(self):
+        """
+        Returns a list of all players associated with this team.
+        """
+        return self.player_set.all()
     
 SKILL_RANK_CHOICES = [
     ('AAA', 'AAA'),  # must win 6
@@ -43,11 +50,12 @@ class Player(models.Model):
     """
     player_number = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=100)
-    skill_rank = models.CharField(max_length=3, choices=SKILL_RANK_CHOICES)
+    skill_class = models.CharField(max_length=3, choices=SKILL_RANK_CHOICES)
+    power_index = models.CharField(max_length=3)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.name} (#{self.player_number}, {self.skill_rank})"
+        return f"{self.name} (#{self.player_number}, {self.power_index}, {self.skill_class})"
 
 GAME_TYPE_CHOICES = [
     ('8-Ball', '8-Ball'),
@@ -85,3 +93,4 @@ class GameMatchup(models.Model):
 
     def __str__(self):
         return f"{self.game_type} matchup for {self.match}"
+    
