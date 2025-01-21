@@ -171,4 +171,8 @@ cython_debug/
 .pypirc
 
 #MacJunk
-.DS_Store
+**/.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
+
