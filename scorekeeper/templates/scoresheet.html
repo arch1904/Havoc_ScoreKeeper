@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Scoresheet for Match: {{ match.home_team }} vs {{ match.away_team }} ({{ match.date }})</h1>
+
+<form method="POST">
+  {% csrf_token %}
+
+  <h2>8-Ball Matchups</h2>
+  {% for form in matchup_forms %}
+    {% if forloop.counter0|add:"0" < 2 %} 
+      <!-- The first two are 8-Ball, if your DB ordering is guaranteed. 
+           Or you can group by form.game_type in the view. -->
+      <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+        <h3>8-Ball #{{ forloop.counter }}</h3>
+        {{ form.lag_winner.label }}: {{ form.lag_winner }}
+        <br>
+        {{ form.lag_loser.label }}: {{ form.lag_loser }}
+        <br>
+        <!-- For demonstration, we display all checkboxes in a row.
+             This depends on how many were generated in the form. -->
+        <div>
+          <p>Lag Winner checkboxes:</p>
+          {% for field in form.fields %}
+            {% if field.startswith:'lag_winner_game_' %}
+              {{ form[field] }}
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div>
+          <p>Lag Loser checkboxes:</p>
+          {% for field in form.fields %}
+            {% if field.startswith:'lag_loser_game_' %}
+              {{ form[field] }}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  <h2>9-Ball Matchups</h2>
+  {% for form in matchup_forms %}
+    {% if forloop.counter0|add:"0" >= 2 and forloop.counter0|add:"0" < 4 %}
+      <!-- Next two are 9-Ball -->
+      <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+        <h3>9-Ball #{{ forloop.counter|add:"-2" }}</h3>
+        {{ form.lag_winner.label }}: {{ form.lag_winner }}
+        <br>
+        {{ form.lag_loser.label }}: {{ form.lag_loser }}
+        <br>
+        <!-- Checkboxes similarly -->
+        <div>
+          <p>Lag Winner checkboxes:</p>
+          {% for field in form.fields %}
+            {% if field.startswith:'lag_winner_game_' %}
+              {{ form[field] }}
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div>
+          <p>Lag Loser checkboxes:</p>
+          {% for field in form.fields %}
+            {% if field.startswith:'lag_loser_game_' %}
+              {{ form[field] }}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  <h2>10-Ball Matchups</h2>
+  {% for form in matchup_forms %}
+    {% if forloop.counter0|add:"0" >= 4 %}
+      <!-- Last two are 10-Ball -->
+      <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+        <h3>10-Ball #{{ forloop.counter|add:"-4" }}</h3>
+        {{ form.lag_winner.label }}: {{ form.lag_winner }}
+        <br>
+        {{ form.lag_loser.label }}: {{ form.lag_loser }}
+        <br>
+        <div>
+          <p>Lag Winner checkboxes:</p>
+          {% for field in form.fields %}
+            {% if field.startswith:'lag_winner_game_' %}
+              {{ form[field] }}
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div>
+          <p>Lag Loser checkboxes:</p>
+          {% for field in form.fields %}
+            {% if field.startswith:'lag_loser_game_' %}
+              {{ form[field] }}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  <button type="submit">Save</button>
+</form>
+{% endblock %}
