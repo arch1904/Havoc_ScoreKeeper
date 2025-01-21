@@ -93,70 +93,28 @@ def view_matchups(request, team_id):
 
     return render(request, 'view_matchups.html', {'team': team, 'matchups': matchups})
 
-def scoresheet_view(request):
-    match_id = request.session.get('match_id')
-    player_id = request.session.get('player_id')
+def scoresheet_view(request, matchup_id):
+    # Fetch the selected matchup
+    matchup = get_object_or_404(Match, pk=matchup_id)
 
-    if not match_id or not player_id:
-        # If there's no session data, go back to login
-        return redirect('login')  # name of your login url
+    # Get the players from both teams
+    home_players = Player.objects.filter(team=matchup.home_team)
+    away_players = Player.objects.filter(team=matchup.away_team)
 
-    match = get_object_or_404(Match, pk=match_id)
-    current_player = get_object_or_404(Player, pk=player_id)
-
-    # Potential players for the dropdown: all players from both teams
-    possible_players = Player.objects.filter(team__in=[match.home_team, match.away_team])
-
-    # We’ll gather matchup forms
-    matchup_forms = []
+    # Handle form submission (if POST)
     if request.method == 'POST':
-        # If user submitted the forms, we can process them (not fully implemented).
-        # For each matchup, gather the posted form data and handle saving.
-        for i, matchup in enumerate(match.matchups.all()):
-            form_prefix = f'matchup_{matchup.id}'
-            form = GameMatchupForm(
-                request.POST,
-                possible_players=possible_players,
-                skill_data=None,  # We'll set dynamically below
-                prefix=form_prefix
-            )
-            if form.is_valid():
-                lag_winner_id = form.cleaned_data['lag_winner']
-                lag_loser_id = form.cleaned_data['lag_loser']
-                if lag_winner_id and lag_loser_id:
-                    matchup.lag_winner_id = lag_winner_id
-                    matchup.lag_loser_id = lag_loser_id
-                    matchup.save()
+        # Process form data here (e.g., save scores)
+        for key, value in request.POST.items():
+            print(f"{key}: {value}")
+        
+        # After processing, redirect to the matchups page or a success page
+        return redirect('view_matchups', team_id=matchup.home_team.id)
 
-            matchup_forms.append(form)
-        # After processing all forms, maybe redirect or show success message
-        return HttpResponse("Scores saved!")  # or redirect to scoreboard
-    else:
-        # GET request, build blank forms
-        for matchup in match.matchups.all():
-            # If there's already a lag winner/loser on the matchup, we can pass them as initial data
-            initial_data = {}
-            if matchup.lag_winner:
-                initial_data['lag_winner'] = matchup.lag_winner.id
-            if matchup.lag_loser:
-                initial_data['lag_loser'] = matchup.lag_loser.id
-
-            # For demonstration, let’s figure out the skill data (if both players are known)
-            # But since it’s a blank scoresheet, we might not have them yet, so pass None
-            skill_data = None
-            # Example: if we have two known players:
-            # skill_data = (SKILL_GAMES_NEEDED[matchup.lag_winner.skill_rank],
-            #               SKILL_GAMES_NEEDED[matchup.lag_loser.skill_rank])
-
-            form = GameMatchupForm(
-                possible_players=possible_players,
-                skill_data=skill_data,
-                initial=initial_data,
-                prefix=f'matchup_{matchup.id}'
-            )
-            matchup_forms.append(form)
-
-    return render(request, 'scorekeeper/templates/scoresheet.html', {
-        'match': match,
-        'matchup_forms': matchup_forms,
+    # Render the scoresheet for the selected matchup
+    return render(request, 'scoresheet.html', {
+        'matchup': matchup,
+        'home_players': home_players,
+        'away_players': away_players,
+        'range_2': range(2),  # Add range(2) to the context
+        'range_13': range(1, 14),  # Add range(1, 14) to the context
     })

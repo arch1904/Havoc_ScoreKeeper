@@ -1,106 +1,157 @@
 {% extends 'base.html' %}
-{% load static %}
+
+{% block title %}Scoresheet{% endblock %}
 
 {% block content %}
-<h1>Scoresheet for Match: {{ match.home_team }} vs {{ match.away_team }} ({{ match.date }})</h1>
+<h2>Scoresheet for {{ matchup.home_team.name }} vs {{ matchup.away_team.name }}</h2>
+<p><strong>Date:</strong> {{ matchup.date }}</p>
 
-<form method="POST">
-  {% csrf_token %}
+<form method="post">
+    {% csrf_token %}
+    
+    <!-- Section for 8-Ball -->
+    <h3>8-Ball Matches</h3>
+    <table>
+        <tr>
+            <th>Lag Winner</th>
+            <th colspan="13">Matches</th>
+        </tr>
+        {% for i in range_2 %}
+        <tr>
+            <!-- Lag Winner Row -->
+            <td>
+                <label for="lag_winner_8ball_{{ i }}">Lag Winner:</label>
+                <select name="lag_winner_8ball_{{ i }}" id="lag_winner_8ball_{{ i }}">
+                    <option value="">Select Player</option>
+                    {% for player in home_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Home)</option>
+                    {% endfor %}
+                    {% for player in away_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Away)</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% for j in range_13 %}
+            <td><input type="checkbox" name="lag_winner_8ball_{{ i }}_match_{{ j }}"></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <!-- Lag Loser Row -->
+            <td>
+                <label for="lag_loser_8ball_{{ i }}">Lag Loser:</label>
+                <select name="lag_loser_8ball_{{ i }}" id="lag_loser_8ball_{{ i }}">
+                    <option value="">Select Player</option>
+                    {% for player in home_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Home)</option>
+                    {% endfor %}
+                    {% for player in away_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Away)</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% for j in range_13 %}
+            <td><input type="checkbox" name="lag_loser_8ball_{{ i }}_match_{{ j }}"></td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
 
-  <h2>8-Ball Matchups</h2>
-  {% for form in matchup_forms %}
-    {% if forloop.counter0|add:"0" < 2 %} 
-      <!-- The first two are 8-Ball, if your DB ordering is guaranteed. 
-           Or you can group by form.game_type in the view. -->
-      <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-        <h3>8-Ball #{{ forloop.counter }}</h3>
-        {{ form.lag_winner.label }}: {{ form.lag_winner }}
-        <br>
-        {{ form.lag_loser.label }}: {{ form.lag_loser }}
-        <br>
-        <!-- For demonstration, we display all checkboxes in a row.
-             This depends on how many were generated in the form. -->
-        <div>
-          <p>Lag Winner checkboxes:</p>
-          {% for field in form.fields %}
-            {% if field.startswith:'lag_winner_game_' %}
-              {{ form[field] }}
-            {% endif %}
-          {% endfor %}
-        </div>
-        <div>
-          <p>Lag Loser checkboxes:</p>
-          {% for field in form.fields %}
-            {% if field.startswith:'lag_loser_game_' %}
-              {{ form[field] }}
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
+    <!-- Section for 9-Ball -->
+    <h3>9-Ball Matches</h3>
+    <table>
+        <tr>
+            <th>Lag Winner</th>
+            <th colspan="13">Matches</th>
+        </tr>
+        {% for i in range_2 %}
+        <tr>
+            <!-- Lag Winner Row -->
+            <td>
+                <label for="lag_winner_9ball_{{ i }}">Lag Winner:</label>
+                <select name="lag_winner_9ball_{{ i }}" id="lag_winner_9ball_{{ i }}">
+                    <option value="">Select Player</option>
+                    {% for player in home_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Home)</option>
+                    {% endfor %}
+                    {% for player in away_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Away)</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% for j in range_13 %}
+            <td><input type="checkbox" name="lag_winner_9ball_{{ i }}_match_{{ j }}"></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <!-- Lag Loser Row -->
+            <td>
+                <label for="lag_loser_9ball_{{ i }}">Lag Loser:</label>
+                <select name="lag_loser_9ball_{{ i }}" id="lag_loser_9ball_{{ i }}">
+                    <option value="">Select Player</option>
+                    {% for player in home_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Home)</option>
+                    {% endfor %}
+                    {% for player in away_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Away)</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% for j in range_13 %}
+            <td><input type="checkbox" name="lag_loser_9ball_{{ i }}_match_{{ j }}"></td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
 
-  <h2>9-Ball Matchups</h2>
-  {% for form in matchup_forms %}
-    {% if forloop.counter0|add:"0" >= 2 and forloop.counter0|add:"0" < 4 %}
-      <!-- Next two are 9-Ball -->
-      <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-        <h3>9-Ball #{{ forloop.counter|add:"-2" }}</h3>
-        {{ form.lag_winner.label }}: {{ form.lag_winner }}
-        <br>
-        {{ form.lag_loser.label }}: {{ form.lag_loser }}
-        <br>
-        <!-- Checkboxes similarly -->
-        <div>
-          <p>Lag Winner checkboxes:</p>
-          {% for field in form.fields %}
-            {% if field.startswith:'lag_winner_game_' %}
-              {{ form[field] }}
-            {% endif %}
-          {% endfor %}
-        </div>
-        <div>
-          <p>Lag Loser checkboxes:</p>
-          {% for field in form.fields %}
-            {% if field.startswith:'lag_loser_game_' %}
-              {{ form[field] }}
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
+    <!-- Section for 10-Ball -->
+    <h3>10-Ball Matches</h3>
+    <table>
+        <tr>
+            <th>Lag Winner</th>
+            <th colspan="13">Matches</th>
+        </tr>
+        {% for i in range_2 %}
+        <tr>
+            <!-- Lag Winner Row -->
+            <td>
+                <label for="lag_winner_10ball_{{ i }}">Lag Winner:</label>
+                <select name="lag_winner_10ball_{{ i }}" id="lag_winner_10ball_{{ i }}">
+                    <option value="">Select Player</option>
+                    {% for player in home_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Home)</option>
+                    {% endfor %}
+                    {% for player in away_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Away)</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% for j in range_13 %}
+            <td><input type="checkbox" name="lag_winner_10ball_{{ i }}_match_{{ j }}"></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <!-- Lag Loser Row -->
+            <td>
+                <label for="lag_loser_10ball_{{ i }}">Lag Loser:</label>
+                <select name="lag_loser_10ball_{{ i }}" id="lag_loser_10ball_{{ i }}">
+                    <option value="">Select Player</option>
+                    {% for player in home_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Home)</option>
+                    {% endfor %}
+                    {% for player in away_players %}
+                    <option value="{{ player.id }}">{{ player.name }} (Away)</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% for j in range_13 %}
+            <td><input type="checkbox" name="lag_loser_10ball_{{ i }}_match_{{ j }}"></td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
 
-  <h2>10-Ball Matchups</h2>
-  {% for form in matchup_forms %}
-    {% if forloop.counter0|add:"0" >= 4 %}
-      <!-- Last two are 10-Ball -->
-      <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-        <h3>10-Ball #{{ forloop.counter|add:"-4" }}</h3>
-        {{ form.lag_winner.label }}: {{ form.lag_winner }}
-        <br>
-        {{ form.lag_loser.label }}: {{ form.lag_loser }}
-        <br>
-        <div>
-          <p>Lag Winner checkboxes:</p>
-          {% for field in form.fields %}
-            {% if field.startswith:'lag_winner_game_' %}
-              {{ form[field] }}
-            {% endif %}
-          {% endfor %}
-        </div>
-        <div>
-          <p>Lag Loser checkboxes:</p>
-          {% for field in form.fields %}
-            {% if field.startswith:'lag_loser_game_' %}
-              {{ form[field] }}
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
-
-  <button type="submit">Save</button>
+    <button type="submit">Submit Scores</button>
 </form>
+
+<a href="{% url 'view_matchups' matchup.home_team.id %}">Back to Matchups</a>
 {% endblock %}

@@ -9,7 +9,8 @@
     {% for matchup in matchups %}
     <li>
         <strong>Date:</strong> {{ matchup.date }}<br>
-        <strong>Opponent:</strong> {{ matchup.opponent.name }}
+        <strong>Opponent:</strong> {{ matchup.opponent.name }}<br>
+        <a href="{% url 'scoresheet' matchup.id %}">View Scoresheet</a>
     </li>
     {% endfor %}
 </ul>
