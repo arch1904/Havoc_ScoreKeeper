@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<h2>Scoresheet for {{ matchup.home_team.name }} vs {{ matchup.away_team.name }}</h2>
+<p><strong>Date:</strong> {{ matchup.date }}</p>
+
+<h3>8-Ball Matches</h3>
+{% for i in range_2 %}
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="game_type" value="8-Ball">
+    <input type="hidden" name="matchup_index" value="{{ i }}">
+
+    {% if completed_matchups|key:"8-Ball-{{ i }}" %}
+        <!-- Display completed matchup (read-only) -->
+        {% with completed_matchups|key:"8-Ball-{{ i }}" as matchup_data %}
+        <table>
+            <tr>
+                <th>Lag Winner</th>
+                <th>Lag Loser</th>
+                <th colspan="13">Scores</th>
+            </tr>
+            <tr>
+                <td>{{ matchup_data.lag_winner.name }}</td>
+                <td>{{ matchup_data.lag_loser.name }}</td>
+                {% for j in range_13 %}
+                <td>
+                    {% if j in matchup_data.scores %}
+                    ✓
+                    {% else %}
+                    &nbsp;
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+        </table>
+        {% endwith %}
+    {% else %}
+        <!-- Editable form for uncompleted matchups -->
+        <table>
+            <tr>
+                <th>Lag Winner</th>
+                <th>Lag Loser</th>
+                <th colspan="13">Scores</th>
+            </tr>
+            <tr>
+                <td>
+                    <select name="lag_winner">
+                        <option value="">Select Player</option>
+                        {% for player in home_players %}
+                        <option value="{{ player.id }}">{{ player.name }} (Home)</option>
+                        {% endfor %}
+                        {% for player in away_players %}
+                        <option value="{{ player.id }}">{{ player.name }} (Away)</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="lag_loser">
+                        <option value="">Select Player</option>
+                        {% for player in home_players %}
+                        <option value="{{ player.id }}">{{ player.name }} (Home)</option>
+                        {% endfor %}
+                        {% for player in away_players %}
+                        <option value="{{ player.id }}">{{ player.name }} (Away)</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                {% for j in range_13 %}
+                <td>
+                    <input type="checkbox" name="match_{{ j }}">
+                </td>
+                {% endfor %}
+            </tr>
+        </table>
+        <button type="submit">Submit Matchup</button>
+    {% endif %}
+</form>
+{% endfor %}
+{% endblock %}

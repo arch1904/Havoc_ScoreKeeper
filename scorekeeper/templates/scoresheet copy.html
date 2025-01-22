@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load custom_filters %}
 
 {% block title %}Scoresheet{% endblock %}
 
@@ -9,47 +8,19 @@
 
 <form method="post">
     {% csrf_token %}
-
+    
     <!-- Section for 8-Ball -->
     <h3>8-Ball Matches</h3>
     <table>
         <tr>
-            <th>Players</th>
+            <th>Lag Winner</th>
             <th colspan="13">Matches</th>
         </tr>
         {% for i in range_2 %}
-        {% with completed_matchups|key:"8-Ball-{{ i }}" as matchup_data %}
-        {% if matchup_data %}
-        <!-- Completed Match -->
         <tr>
-            <td>{{ matchup_data.lag_winner.name }}</td>
-            {% for j in range_13 %}
+            <!-- Lag Winner Row -->
             <td>
-                {% if j in matchup_data.scores %}
-                ✓
-                {% else %}
-                &nbsp;
-                {% endif %}
-            </td>
-            {% endfor %}
-        </tr>
-        <tr>
-            <td>{{ matchup_data.lag_loser.name }}</td>
-            {% for j in range_13 %}
-            <td>
-                {% if j in matchup_data.scores %}
-                ✓
-                {% else %}
-                &nbsp;
-                {% endif %}
-            </td>
-            {% endfor %}
-        </tr>
-        {% else %}
-        <!-- Editable Match -->
-        <tr>
-            <td>
-                <label for="lag_winner_8ball_{{ i }}"><br>Lag Winner:</label>
+                <label for="lag_winner_8ball_{{ i }}">Lag Winner:</label>
                 <select name="lag_winner_8ball_{{ i }}" id="lag_winner_8ball_{{ i }}">
                     <option value="">Select Player</option>
                     {% for player in home_players %}
@@ -65,6 +36,7 @@
             {% endfor %}
         </tr>
         <tr>
+            <!-- Lag Loser Row -->
             <td>
                 <label for="lag_loser_8ball_{{ i }}">Lag Loser:</label>
                 <select name="lag_loser_8ball_{{ i }}" id="lag_loser_8ball_{{ i }}">
@@ -81,8 +53,6 @@
             <td><input type="checkbox" name="lag_loser_8ball_{{ i }}_match_{{ j }}"></td>
             {% endfor %}
         </tr>
-        {% endif %}
-        {% endwith %}
         {% endfor %}
     </table>
 
@@ -90,42 +60,14 @@
     <h3>9-Ball Matches</h3>
     <table>
         <tr>
-            <th>Players</th>
+            <th>Lag Winner</th>
             <th colspan="13">Matches</th>
         </tr>
         {% for i in range_2 %}
-        {% with completed_matchups|key:"9-Ball-{{ i }}" as matchup_data %}
-        {% if matchup_data %}
-        <!-- Completed Match -->
         <tr>
-            <td>{{ matchup_data.lag_winner.name }}</td>
-            {% for j in range_13 %}
+            <!-- Lag Winner Row -->
             <td>
-                {% if j in matchup_data.scores %}
-                ✓
-                {% else %}
-                &nbsp;
-                {% endif %}
-            </td>
-            {% endfor %}
-        </tr>
-        <tr>
-            <td>{{ matchup_data.lag_loser.name }}</td>
-            {% for j in range_13 %}
-            <td>
-                {% if j in matchup_data.scores %}
-                ✓
-                {% else %}
-                &nbsp;
-                {% endif %}
-            </td>
-            {% endfor %}
-        </tr>
-        {% else %}
-        <!-- Editable Match -->
-        <tr>
-            <td>
-                <label for="lag_winner_9ball_{{ i }}"><br>Lag Winner:</label>
+                <label for="lag_winner_9ball_{{ i }}">Lag Winner:</label>
                 <select name="lag_winner_9ball_{{ i }}" id="lag_winner_9ball_{{ i }}">
                     <option value="">Select Player</option>
                     {% for player in home_players %}
@@ -141,6 +83,7 @@
             {% endfor %}
         </tr>
         <tr>
+            <!-- Lag Loser Row -->
             <td>
                 <label for="lag_loser_9ball_{{ i }}">Lag Loser:</label>
                 <select name="lag_loser_9ball_{{ i }}" id="lag_loser_9ball_{{ i }}">
@@ -157,8 +100,6 @@
             <td><input type="checkbox" name="lag_loser_9ball_{{ i }}_match_{{ j }}"></td>
             {% endfor %}
         </tr>
-        {% endif %}
-        {% endwith %}
         {% endfor %}
     </table>
 
@@ -166,42 +107,14 @@
     <h3>10-Ball Matches</h3>
     <table>
         <tr>
-            <th>Players</th>
+            <th>Lag Winner</th>
             <th colspan="13">Matches</th>
         </tr>
         {% for i in range_2 %}
-        {% with completed_matchups|key:"10-Ball-{{ i }}" as matchup_data %}
-        {% if matchup_data %}
-        <!-- Completed Match -->
         <tr>
-            <td>{{ matchup_data.lag_winner.name }}</td>
-            {% for j in range_13 %}
+            <!-- Lag Winner Row -->
             <td>
-                {% if j in matchup_data.scores %}
-                ✓
-                {% else %}
-                &nbsp;
-                {% endif %}
-            </td>
-            {% endfor %}
-        </tr>
-        <tr>
-            <td>{{ matchup_data.lag_loser.name }}</td>
-            {% for j in range_13 %}
-            <td>
-                {% if j in matchup_data.scores %}
-                ✓
-                {% else %}
-                &nbsp;
-                {% endif %}
-            </td>
-            {% endfor %}
-        </tr>
-        {% else %}
-        <!-- Editable Match -->
-        <tr>
-            <td>
-                <label for="lag_winner_10ball_{{ i }}"><br>Lag Winner:</label>
+                <label for="lag_winner_10ball_{{ i }}">Lag Winner:</label>
                 <select name="lag_winner_10ball_{{ i }}" id="lag_winner_10ball_{{ i }}">
                     <option value="">Select Player</option>
                     {% for player in home_players %}
@@ -217,6 +130,7 @@
             {% endfor %}
         </tr>
         <tr>
+            <!-- Lag Loser Row -->
             <td>
                 <label for="lag_loser_10ball_{{ i }}">Lag Loser:</label>
                 <select name="lag_loser_10ball_{{ i }}" id="lag_loser_10ball_{{ i }}">
@@ -233,8 +147,6 @@
             <td><input type="checkbox" name="lag_loser_10ball_{{ i }}_match_{{ j }}"></td>
             {% endfor %}
         </tr>
-        {% endif %}
-        {% endwith %}
         {% endfor %}
     </table>
 

@@ -78,19 +78,10 @@ class Match(models.Model):
 
 
 class GameMatchup(models.Model):
-    """
-    Represents an individual matchup (e.g. 8-ball #1, 9-ball #2, etc.) 
-    for the overall Match. 
-    Each match has 6 GameMatchups total: 2 for 8-Ball, 2 for 9-Ball, 2 for 10-Ball.
-    """
-    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='matchups')
-    game_type = models.CharField(max_length=10, choices=GAME_TYPE_CHOICES)
-    # We'll capture the player references later, or possibly store them once assigned:
-    lag_winner = models.ForeignKey(Player, null=True, blank=True, on_delete=models.SET_NULL, related_name='lag_winner_matchups')
-    lag_loser = models.ForeignKey(Player, null=True, blank=True, on_delete=models.SET_NULL, related_name='lag_loser_matchups')
-    # Additional fields: e.g. final scores or "boxes" to reflect how many games each player won
-    # For simplicity, we’ll store them in a ManyToMany or direct integer fields, etc.
-
-    def __str__(self):
-        return f"{self.game_type} matchup for {self.match}"
-    
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    game_type = models.CharField(max_length=20, choices=[('8-Ball', '8-Ball'), ('9-Ball', '9-Ball'), ('10-Ball', '10-Ball')])
+    matchup_index = models.IntegerField()  # Index of the matchup (0 or 1 for each game type)
+    lag_winner = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='lag_winner_games')
+    lag_loser = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='lag_loser_games')
+    scores = models.JSONField(default=list)  # Stores match results as a list of numbers
+    completed = models.BooleanField(default=False)

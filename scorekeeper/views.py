@@ -101,20 +101,52 @@ def scoresheet_view(request, matchup_id):
     home_players = Player.objects.filter(team=matchup.home_team)
     away_players = Player.objects.filter(team=matchup.away_team)
 
-    # Handle form submission (if POST)
+    # Handle form submissions for individual matchups
     if request.method == 'POST':
-        # Process form data here (e.g., save scores)
-        for key, value in request.POST.items():
-            print(f"{key}: {value}")
-        
-        # After processing, redirect to the matchups page or a success page
-        return redirect('view_matchups', team_id=matchup.home_team.id)
+        # Extract form data to identify which matchup was submitted
+        game_type = request.POST.get('game_type')
+        matchup_index = request.POST.get('matchup_index')  # Identify which matchup is submitted
 
-    # Render the scoresheet for the selected matchup
+        # Retrieve or create a GameMatchup object
+        game_matchup, created = GameMatchup.objects.get_or_create(
+            match=matchup,
+            game_type=game_type,
+            matchup_index=matchup_index
+        )
+
+        # Save lag winner and lag loser
+        lag_winner_id = request.POST.get('lag_winner')
+        lag_loser_id = request.POST.get('lag_loser')
+
+        if lag_winner_id:
+            game_matchup.lag_winner_id = lag_winner_id
+        if lag_loser_id:
+            game_matchup.lag_loser_id = lag_loser_id
+
+        # Save scores (checkboxes)
+        scores = []
+        for i in range(1, 14):
+            if f'match_{i}' in request.POST:
+                scores.append(i)
+        game_matchup.scores = scores  # Store scores as a list or process as needed
+        game_matchup.completed = True  # Mark matchup as completed
+        game_matchup.save()
+
+        return redirect('scoresheet', matchup_id=matchup_id)
+
+    # Retrieve all existing game matchups for this match
+    completed_matchups = GameMatchup.objects.filter(match=matchup, completed=True)
+    completed_matchups_lookup = {}
+    for gm in completed_matchups:
+        key = f"{gm.game_type}-{gm.matchup_index}"  # Precompute the key
+        completed_matchups_lookup[key] = gm
+
+    # Render the scoresheet
     return render(request, 'scoresheet.html', {
         'matchup': matchup,
         'home_players': home_players,
         'away_players': away_players,
-        'range_2': range(2),  # Add range(2) to the context
-        'range_13': range(1, 14),  # Add range(1, 14) to the context
+        'range_2': range(2),  # Two matchups for each game type
+        'range_13': range(1, 14),  # 13 checkboxes for each matchup
+        'completed_matchups': completed_matchups_lookup,  # Precomputed keys
     })
